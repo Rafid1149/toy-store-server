@@ -51,14 +51,26 @@ async function run() {
        }
     })
 
+    app.get("/myToys/:email", async (req, res) => {
+        const query = { email: req.params.email}
+
+        console.log(req.params.email);
+        const toys = await toyCollection.find(query).toArray();
+        res.send(toys);
+      });
+
+    // Ensures that the client will close when you finish/error
+    // await client.close();
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
 
 
-    // Ensures that the client will close when you finish/error
-    // await client.close();
+    // get toys by email--
+
+ 
   }
 }
 run().catch(console.dir);
