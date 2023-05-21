@@ -31,6 +31,25 @@ async function run() {
     await client.connect();
 
 
+    const toyCollection = client.db('toystore').collection('collection');
+
+
+    app.get('/toys', async(req , res ) =>{
+        const cursor = toyCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+    })
+
+    app.post( '/post-toy', async(req , res ) =>{
+        const body = req.body;
+        const result = await toyCollection.insertOne(body);
+       if(result.insertedId){
+        return res.send(result);
+       }
+       else{
+        return res.status(404).send({ message: 'Invalid'})
+       }
+    })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
