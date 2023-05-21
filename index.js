@@ -71,6 +71,30 @@ async function run() {
         res.send(result);
 
       })
+
+      app.get( '/toy/:id', async (req, res) =>{
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id)};
+        const result = await toyCollection.findOne(query);
+        res.send(result);
+      })
+
+      app.patch('/updateToy/:id', async (req, res) =>{
+        const id = req.params.id;
+        const body = req.body;
+        const query ={_id: new ObjectId(id)};
+        const updateDoc = {
+            $set: {
+              price: body.price,
+              quantity: body.quantity,
+              description: body.description,
+            },
+          };
+          console.log(body , query , updateDoc);
+        //   const result = await toyCollection.updateOne(query , updateDoc);
+          const result = await toyCollection.updateOne(query, updateDoc)
+          res.send(result);
+      })
  
 
     // Ensures that the client will close when you finish/error
@@ -82,7 +106,7 @@ async function run() {
   } finally {
 
 
-    // get toys by email--
+ 
 
  
   }
