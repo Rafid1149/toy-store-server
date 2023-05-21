@@ -53,11 +53,18 @@ async function run() {
 
     app.get("/myToys/:email", async (req, res) => {
         const query = { email: req.params.email}
-
-        console.log(req.params.email);
         const toys = await toyCollection.find(query).toArray();
         res.send(toys);
       });
+
+      app.get('/toysCategory', async (req, res) =>{
+        const result = await toyCollection.find().toArray();
+        const category = result.map((item) => item.category);
+        const uniqueCategory = [...new Set(category)];
+        res.send(uniqueCategory)
+      })
+
+ 
 
     // Ensures that the client will close when you finish/error
     // await client.close();
