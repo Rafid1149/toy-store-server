@@ -11,6 +11,7 @@ app.use(express.json());
 app.use(cors());
 
 
+
 // console.log(process.env.DB_PASS);
 
 
@@ -28,11 +29,23 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
 
     const toyCollection = client.db('toystore').collection('collection');
 
+
+    // const indexKeys = { name: 1 };
+    // const indexOptions = { name: "nameIndex" };
+
+    // const result = await toyCollection.createIndex(indexKeys, indexOptions);
+    app.get("/searchToy/:text", async (req, res) => {
+        const text = req.params.text;
+        const result = await toyCollection
+          .find({ name: { $regex: text, $options: "i" } })
+          .toArray();
+        res.send(result);
+      });
 
     app.get('/toys', async(req , res ) =>{
         const cursor = toyCollection.find();
@@ -95,13 +108,36 @@ async function run() {
           const result = await toyCollection.updateOne(query, updateDoc)
           res.send(result);
       })
+      
+      app.get("/myToys/:email/sortByPrice/:sortOrder", async (req, res) => {
+        const email = req.params.email;
+        const sortOrder = req.params.sortOrder === "desc" ? -1 : 1;
+  
+        try {
+          const toys = await toyCollection.find({ email }).toArray();
+  
+          toys.forEach((toy) => {
+            toy.price = parseFloat(toy.price);
+          });
+  
+          toys.sort((a, b) => {
+            return sortOrder * (a.price - b.price);
+          });
+  
+          res.send(toys);
+        } catch (error) {
+          console.error("Error fetching sorted toys:", error);
+          res.status(500).send("An error occurred while fetching sorted toys.");
+        }
+      });
+  
  
 
     // Ensures that the client will close when you finish/error
     // await client.close();
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
 
